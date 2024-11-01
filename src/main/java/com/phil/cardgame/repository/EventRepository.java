@@ -1,7 +1,6 @@
 package com.phil.cardgame.repository;
 
 import com.phil.cardgame.model.Event;
-import com.phil.cardgame.model.Game;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;

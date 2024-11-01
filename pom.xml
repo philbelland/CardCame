@@ -5,14 +5,15 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.1</version>
+		<version>3.1.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.phil</groupId>
 	<artifactId>cardgame</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<name>cardgame</name>
-	<description>A Basic Deck of Cards Game</description>
+	<packaging>jar</packaging>
+	<description>Card Game Assignment</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

@@ -1,16 +1,14 @@
 package com.phil.cardgame.service;
 
 import com.phil.cardgame.model.Card;
-import com.phil.cardgame.model.Game;
 import com.phil.cardgame.model.Deck;
+import com.phil.cardgame.model.Game;
 import com.phil.cardgame.model.Player;
-import com.phil.cardgame.repository.EventRepository;
 import com.phil.cardgame.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class GameService {

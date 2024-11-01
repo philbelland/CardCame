@@ -2,7 +2,6 @@ package com.phil.cardgame.aspects;
 
 import com.phil.cardgame.model.Deck;
 import com.phil.cardgame.repository.EventRepository;
-import com.phil.cardgame.service.GameService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,9 +14,7 @@ public class EventAspect {
     @Autowired
     EventRepository eventRepository;
 
-    //@Around("execution(* com.phil.cardgame.service.GameService.createGame())")
-    //@Around("execution(* com.phil.cardgame.service.*.*(..))")
-    @Around("crap")
+    @Around("execution(* com.phil.cardgame.service.GameService.createGame())")
     public Long registerCreateGame(ProceedingJoinPoint joinPoint) throws Throwable{
         String action = joinPoint.getSignature().toString();
         Long gameId = (Long) joinPoint.proceed();
