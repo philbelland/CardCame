@@ -1,0 +1,216 @@
+https://javaconceptoftheday.com/synchronize-arraylist-hashset-and-hashmap-in-java/
+https://ioflood.com/blog/java-synchronized/
+C:\Users\phil\JAVA\training\LinkedIn\advance-your-skills-in-java-4452104\chapter5\src\main\java\com\linkedin\SingletonLazy.java
+--------------
+Object value = map.get(key);
+if(value == null) {
+  synchronized (map) {
+    value = map.get(key); // check again, might have been changed in between
+    if(value == null) {
+      map.put(key, new Value(...));
+    }
+  }
+}
+--------------
+Map m = Collections.synchronizedMap(new HashMap());
+      ...
+Set s = m.keySet();  // Needn't be in synchronized block
+      ...
+synchronized(m) {  // Synchronizing on m, not s!
+    Iterator i = s.iterator(); // Must be in synchronized block
+    while (i.hasNext())
+        foo(i.next());
+}
+
+The map returned from Collections.synchronizedMap() will properly wrap
+synchronized around all calls sent to the original Map. However, the set impl
+returned by keySet() does not have the same property, so you must ensure it is
+read under the same lock.
+--------------
+Iterable<String> keys;
+synchronized (map) {
+    keys = new ArrayList<>(map.keySet());
+}
+for (String key : keys) {
+    synchronized (map) {
+        Integer value = map.get(key);
+        // The other thread won't be able to update the value at this point
+        if (value != null && value < 0) {
+            map.remove(key);
+        }
+    }
+}
+--------------
+public class MyClass {
+  private static Map<String, List<String>> synchronizedMap = Collections.synchronizedMap(new HashMap<String, List<String>>());
+
+  public void doWork(String key) {
+    List<String> values = null;
+    while ((values = synchronizedMap.remove(key)) != null) {
+      //do something with values
+    }
+  }
+
+  public static void addToMap(String key, String value) {
+    synchronized (synchronizedMap) {
+      if (synchronizedMap.containsKey(key)) {
+        synchronizedMap.get(key).add(value);
+      }
+      else {
+        List<String> valuesList = new ArrayList<String>();
+        valuesList.add(value);
+        synchronizedMap.put(key, valuesList);
+      }
+    }
+  }
+}
+Collections.synchronizedMap() guarantees that each atomic operation you want to run on the map will be synchronized.
+Running two (or more) operations on the map however, must be synchronized in a block. So yes - you are synchronizing correctly.
+
+If I were to change anything, I would stop using the Collections.synchronizedMap() 
+and synchronize everything the same way, just to make it clearer.
+--------------
+
+suit
+ - name
+ - color
+card
+ - suit
+ - name (4, king)
+ - value
+deck
+ - list of cards
+shoe
+ - list of decks
+player
+ - email
+ - hand (list of cards)
+game
+ - id
+ - list of players
+ - shoe
+ - round
+event
+ - timestamp
+ - action
+ - requester
+ - result
+history
+ - list of events
+
+JoinGame
+ > email
+ - check if joined
+ - add to list of players
+ - log event
+GetCard
+ > email
+ > number of cards
+ < nothing
+ - log event
+GetListOfPlayers
+ - list of players sorted by value of hand descending
+GetListOfCards
+ > email
+ - log event
+GetUndealtCards
+ - list of suits
+ - count per suit
+ - log event
+GetEvents
+ - 
+QuitGame
+ > email
+ - check if joined
+ - remove from game.list of players
+ - log event
+
+CreateShoe
+ShuffleDeck
+GetListOfPlayers
+GetListOfUndealtCards
+LogEvent
+
+===================================================================
+https://restfulapi.net/http-methods/
+POST
+	Create
+	201 (Created), ‘Location’ header with link to /users/{id} containing new ID
+	Avoid using POST on a single resource
+GET
+	Read
+	200 (OK), list of users. Use pagination, sorting, and filtering to navigate big lists
+	200 (OK), single user. 404 (Not Found), if ID not found or invalid
+PUT
+	Update/Replace
+	405 (Method not allowed), unless you want to update every resource in the entire collection of resource
+	200 (OK) or 204 (No Content). Use 404 (Not Found), if ID is not found or invalid
+PATCH
+	Partial Update/Modify
+	405 (Method not allowed), unless you want to modify the collection itself
+	200 (OK) or 204 (No Content). Use 404 (Not Found), if ID is not found or invalid
+DELETE
+	Delete
+	405 (Method not allowed), unless you want to delete the whole collection — use with caution
+	200 (OK). 404 (Not Found), if ID not found or invalid
+
+An idempotent HTTP method is a method that can be invoked many times without different outcomes.
+It should not matter if the method has been called only once, or ten times over.
+The result should always be the same.
+    POST and PATCH are NOT idempotent.
+    GET, PUT, DELETE, HEAD, OPTIONS and TRACE are idempotent.
+
+===================================================================
+/game/createGame
+POST    createGame(): long
+/game/{game_id}/deleteGame
+DELETE  deleteGame(id: long)
+/game/{game_id}/createDeck
+POST    createDeck(): Deck
+/game/{game_id}/addDeck
++ addDeckToShoe(gameId: long, deck: Deck)
+/game/{game_id}/addPlayer
++ addPlayerToGame(gameId: long, email: String)
+/game/{game_id}/{player_id}/removePlayer
++ removePlayerFromGame(gameId: long, email: String)
++ getHandValue(gameId: long, email: String): long
+/game/{game_id}/{player_id}/getHand
++ getPlayerCards(gameId: long, email: String): List&lt;Card&gt;
+/game/{game_id}/{player_id}/dealCard/{number_of_cards}
++ dealToPlayer(gameId: long, email: String, numberRequested: int): int
+    public List<Player> getPlayers(){
+    public List<Player> getUndealtCards(){
+
+GetUndealtCards
+ - list of suits
+ - count per suit
+ - log event
+
+You must provide the following operations:
+>>> Create and delete a game
+>>> Create a deck
+>>> Add a deck to a game deck (Please note that once a deck has been added to a game deck it cannot be removed.)
+>>> Add and remove players from a game
+>>> Deal cards to a player in a game from the game deck
+
+    Specifically, for a game deck containing only one deck of cards, 
+    a call to shuffle followed by 52 calls to dealCards(1) for the 
+    same player should result in the caller being provided all 52 
+    cards of the deck in a random order. 
+    
+    If the caller then makes a 53rd call to dealCard(1), no card is 
+    dealt. This approach is to be followed if the game deck contains 
+    more than one deck.
+
+>>> Get the list of cards for a player
+>>> Get the list of players in a game along with the total added value of all the cards each player holds
+
+    use face values of cards only. Then sort the list in descending order, 
+    from the player with the highest value hand to the player with the 
+    lowest value hand.
+
+    For instance if player ‘A’ holds a 10 + King then her total value is 23 
+    and player ‘B’ holds a 7 + Queen then his total value is 19, so player 
+    ‘A’ will be listed first followed by player ‘B’.
+
+Get the count of how many cards per suit are left undealt in the game deck (example: 5 hearts, 3 spades, etc.)
