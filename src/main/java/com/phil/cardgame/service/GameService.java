@@ -1,9 +1,7 @@
 package com.phil.cardgame.service;
 
-import com.phil.cardgame.model.Card;
-import com.phil.cardgame.model.Deck;
-import com.phil.cardgame.model.Game;
-import com.phil.cardgame.model.Player;
+import com.phil.cardgame.model.*;
+import com.phil.cardgame.repository.EventRepository;
 import com.phil.cardgame.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +12,8 @@ import java.util.*;
 public class GameService {
     @Autowired
     GameRepository gameRepository;
+    @Autowired
+    EventRepository eventRepository;
 
     private final int MAX_HAND_SIZE = 52;
 
@@ -22,9 +22,6 @@ public class GameService {
     }
     public Game deleteGame(long id){
         return gameRepository.removeGame(id);
-    }
-    public Deck createDeck(){
-        return new Deck();
     }
     public Game findGame(long id){
         return gameRepository.getGame(id);
@@ -37,9 +34,11 @@ public class GameService {
         }
         return player;
     }
-    public void addDeckToGame(long gameId, Deck deck){
+    public Deck addDeckToGame(long gameId){
         Game game = gameRepository.getGame(gameId);
+        Deck deck = new Deck();
         game.addDeck(deck);
+        return deck;
     }
     public Player addPlayerToGame(long gameId, String playerId){
         Game game = gameRepository.getGame(gameId);
@@ -134,5 +133,9 @@ public class GameService {
             }
         }
         return numberToDeal;
+    }
+
+    public Map<Long, Event> getEvents() {
+        return eventRepository.getEvents();
     }
 }

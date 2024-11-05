@@ -214,3 +214,42 @@ You must provide the following operations:
     ‘A’ will be listed first followed by player ‘B’.
 
 Get the count of how many cards per suit are left undealt in the game deck (example: 5 hearts, 3 spades, etc.)
+
+>>> String action, long gameId, String playerId
+
+@PostMapping(value = "/createGame")
+public ResponseEntity<Long> createGame(){
+    public Long createGame(){
+
+@PutMapping(value = "/addPlayer/{gameId}/{player_id}")
+public ResponseEntity<Player> addPlayer(@PathVariable long gameId, @PathVariable String player_id){
+    public Player addPlayerToGame(long gameId, String playerId){
+
+@PutMapping(value = "/dealCards/{gameId}/{playerId}/dealCard")
+public ResponseEntity<Integer> dealCard(@PathVariable long gameId, @PathVariable String playerId){
+@PutMapping(value = "/dealCards/{gameId}/{playerId}/{numberOfCardsRequested}")
+public ResponseEntity<Integer> dealCards(@PathVariable long gameId, @PathVariable String playerId, @PathVariable int numberOfCardsRequested){
+    public int dealToPlayer(long gameId, String playerId, int numberRequested){
+
+@PutMapping(value = "/addDeck/{game_id}")
+public ResponseEntity<Deck> addDeck(@PathVariable long gameId){
+    public Deck addDeckToGame(long gameId){
+
+@DeleteMapping(value = "/removePlayer/{gameId}/{playerId}")
+public ResponseEntity<Player> removePlayer(@PathVariable long gameId, @PathVariable String playerId){
+    public Player removePlayerFromGame(long gameId, String playerId){
+
+@DeleteMapping(value = "/deleteGame/{gameId}")
+public ResponseEntity<Game> deleteGame(@PathVariable long gameId){
+    public Game deleteGame(long id){
+
+=================
+
+    @GetMapping(value = "/getHand/{gameId}/{playerId}")
+    public ResponseEntity<List<Card>> getHand(@PathVariable long gameId, @PathVariable String playerId){
+    @GetMapping(value = "/getPlayers/{gameId}")
+    public ResponseEntity<Map<String,Integer>> getPlayers(@PathVariable long gameId){
+    @GetMapping(value = "/getUndealtCards/{gameId}")
+    public ResponseEntity<Map<String,Integer>> getUndealtCards(@PathVariable long gameId) {
+    @GetMapping(value = "/viewEvents")
+    public ResponseEntity<Map<Long, Event>> viewEvent(){

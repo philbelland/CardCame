@@ -4,6 +4,7 @@ import com.phil.cardgame.model.Event;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
@@ -19,5 +20,9 @@ public class EventRepository {
         long id = nextId.getAndIncrement();
         events.put(id, new Event(System.currentTimeMillis(),action,gameId,playerId));
         return id;
+    }
+
+    public Map<Long, Event> getEvents(){
+        return events;
     }
 }

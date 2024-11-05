@@ -1,8 +1,6 @@
 package com.phil.cardgame.controller;
 
-import com.phil.cardgame.model.Card;
-import com.phil.cardgame.model.Game;
-import com.phil.cardgame.model.Player;
+import com.phil.cardgame.model.*;
 import com.phil.cardgame.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,6 +45,11 @@ public class GameController {
         int numberOfCardsDealt = service.dealToPlayer(gameId, playerId, numberOfCardsRequested);
         return new ResponseEntity<>(numberOfCardsDealt, HttpStatus.OK);
     }
+    @PutMapping(value = "/addDeck/{game_id}")
+    public ResponseEntity<Deck> addDeck(@PathVariable long gameId){
+        Deck deck = service.addDeckToGame(gameId);
+        return new ResponseEntity<>(deck, HttpStatus.OK);
+    }
     @GetMapping(value = "/getHand/{gameId}/{playerId}")
     public ResponseEntity<List<Card>> getHand(@PathVariable long gameId, @PathVariable String playerId){
         List<Card> hand = null;
@@ -74,7 +77,6 @@ public class GameController {
         }
         return new ResponseEntity<>(details, status);
     }
-//     public Map<String,Integer> getUndealtCards(int gameId){
     @GetMapping(value = "/getUndealtCards/{gameId}")
     public ResponseEntity<Map<String,Integer>> getUndealtCards(@PathVariable long gameId) {
         Map<String,Integer> details = service.getUndealtCards(gameId);
@@ -86,8 +88,6 @@ public class GameController {
         }
         return new ResponseEntity<>(details, status);
     }
-///game/{game_id}/createDeck
-///game/{game_id}/addDeck
     @DeleteMapping(value = "/removePlayer/{gameId}/{playerId}")
     public ResponseEntity<Player> removePlayer(@PathVariable long gameId, @PathVariable String playerId){
         HttpStatus status;
@@ -98,5 +98,9 @@ public class GameController {
             status = HttpStatus.OK;
         }
         return new ResponseEntity<>(player, status);
+    }
+    @GetMapping(value = "/viewEvents")
+    public ResponseEntity<Map<Long, Event>> viewEvent(){
+        return new ResponseEntity<>(service.getEvents(),HttpStatus.OK);
     }
 }
