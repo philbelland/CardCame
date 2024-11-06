@@ -5,20 +5,20 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Player implements Comparable<Player> {
-    private String email;
+    private String id;
     private List<Card> hand;
 
-    public Player(String email) {
+    public Player(String id) {
         this.hand = new ArrayList<Card>();
-        this.email = email;
+        this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getId() {
+        return id;
     }
 
-    public synchronized void setEmail(String email) {
-        this.email = email;
+    public synchronized void setId(String id) {
+        this.id = id;
     }
 
     public List<Card> getHand() {

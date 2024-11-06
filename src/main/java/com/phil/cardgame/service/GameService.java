@@ -75,7 +75,7 @@ public class GameService {
                 List<Player> playerList = new ArrayList<>(game.getPlayerList());
                 Collections.sort(playerList);
                 for(Player player : playerList){
-                    map.put(player.getEmail(),player.getHandValue());
+                    map.put(player.getId(),player.getHandValue());
                 }
             }
         }
@@ -87,18 +87,18 @@ public class GameService {
 //                        Map.Entry::getValue,
 //                        (e1, e2) -> e1, LinkedHashMap::new));
     }
-    public Map<String,Integer> getUndealtCards(long gameId){
+    public synchronized Map<String,Integer> getUndealtCards(long gameId){
         Map<String,Integer> map = new HashMap<>();
         Game game = gameRepository.getGame(gameId);
         for(Card card : game.getGameDeck()){
             String suit = card.getSuit().name();
-            map.merge(suit, 1, Integer::sum);
-//            Integer count = map.get(suit);
-//            if(count == null) {
-//                map.put(suit,1);
-//            } else {
-//                map.put(suit,count + 1);
-//            }
+//            map.merge(suit, 1, Integer::sum);
+            Integer count = map.get(suit);
+            if(count == null) {
+                map.put(suit,1);
+            } else {
+                map.put(suit,count + 1);
+            }
         }
         return map;
     }
