@@ -5,7 +5,6 @@ import com.phil.cardgame.repository.EventRepository;
 import com.phil.cardgame.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Service
@@ -67,7 +66,7 @@ public class GameService {
         }
         return list;
     }
-    public Map<String, Integer> getPlayersWithHandTotals(long gameId){
+    public synchronized Map<String, Integer> getPlayersWithHandTotals(long gameId){
         Map<String, Integer> map = new LinkedHashMap<>();
         Game game = gameRepository.getGame(gameId);
         if(game != null) {
@@ -94,44 +93,31 @@ public class GameService {
             String suit = card.getSuit().name();
 //            map.merge(suit, 1, Integer::sum);
             Integer count = map.get(suit);
-            if(count == null) {
-                map.put(suit,1);
-            } else {
-                map.put(suit,count + 1);
-            }
+            map.put(suit,(count == null) ? 1 : count + 1);
         }
         return map;
     }
-    //LogEvent
-    public int dealToPlayer(long gameId, String playerId, int numberRequested){
-        int numberToDeal = numberRequested;
+    public synchronized int dealToPlayer(long gameId, String playerId, int numberRequested){
         Game game = gameRepository.getGame(gameId);
         if(game == null) {
-            numberToDeal = 0;
-        } else {
-            Player player = game.getPlayer(playerId);
-            if (player == null) {
-                numberToDeal = 0;
-            } else {
-                List<Card> hand = player.getHand();
-                if (hand == null) {
-                    numberToDeal = 0;
-                } else {
-                    int handSize = hand.size();
-                    int shoeSize = game.getGameDeck().size();
-                    if (numberRequested > shoeSize) {
-                        numberToDeal = shoeSize;
-                        System.out.printf("numberRequested %d > shoeSize %d - numberToDeal = %d\n", numberRequested, shoeSize, numberToDeal);
-                    }
-                    if (handSize + numberRequested > MAX_HAND_SIZE) {
-                        numberToDeal = MAX_HAND_SIZE - handSize;
-                        System.out.printf("handSize %d + numberToDeal > MAX_HAND_SIZE - numberToDeal = %d\n", handSize, numberToDeal);
-                    }
-                    List<Card> cards = game.useCards(numberToDeal);
-                    player.addCards(cards);
-                }
-            }
+            return 0;
         }
+        Player player = game.getPlayer(playerId);
+        if (player == null) {
+            return 0;
+        }
+        int numberToDeal = numberRequested;
+        int handSize = player.getHand().size();
+        int shoeSize = game.getGameDeck().size();
+        if (numberRequested > shoeSize) {
+            numberToDeal = shoeSize;
+            System.out.printf("%s: numberRequested %d > shoeSize %d - numberToDeal = %d\n", playerId, numberRequested, shoeSize, numberToDeal);
+        }
+        if (handSize + numberRequested > MAX_HAND_SIZE) {
+            numberToDeal = MAX_HAND_SIZE - handSize;
+            System.out.printf("handSize %d + numberToDeal > MAX_HAND_SIZE - numberToDeal = %d\n", handSize, numberToDeal);
+        }
+        player.addCards(game.useCards(numberToDeal));
         return numberToDeal;
     }
 

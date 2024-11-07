@@ -12,7 +12,7 @@ import java.time.Instant;
 @Component
 public class LoggerAspect {
 
-    @Around("execution(* com.phil.cardgame..*.*(..))")
+    //@Around("execution(* com.phil.cardgame..*.*(..))")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
         //System.out.println(">>> "+joinPoint.getSignature().toString() + " method execution start");
         Instant start = Instant.now();

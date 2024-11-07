@@ -56,11 +56,11 @@ public class CardgameApplicationTests {
         Map<String,Integer> remaining = service.getUndealtCards(gameId);
         System.out.printf("> Player: " + playerId + " cards left: %n" + remaining);
     }
-
     @Test
     void testConcurrent() throws InterruptedException {
-        long gameId = service.createGame();
         int numberOfCards = 15;
+        List<String> players = List.of("player1","player2","player3","player4","player5");
+        long gameId = service.createGame();
         class concurrentGame extends Thread{
             private String playerId;
             public concurrentGame(String playerId){
@@ -68,26 +68,31 @@ public class CardgameApplicationTests {
             }
             @Override
             public void run(){
-                System.out.printf("> %d Player %s: %d\n",
-                        this.getId(),
-                        playerId,
-                        System.currentTimeMillis());
+                System.out.printf("> %d Player %s: %d\n",this.getId(),playerId,System.currentTimeMillis());
                 service.addPlayerToGame(gameId, playerId);
-                service.dealToPlayer(gameId, playerId, numberOfCards);
-                if(playerId.equals("player3")){
-                    service.removePlayerFromGame(1,"player1");
-                }
-                System.out.printf("> %d Player %s: %s\n",
-                        this.getId(),
-                        playerId,
-                        service.findPlayerInGame(gameId,playerId).getHand());
+                int dealt = service.dealToPlayer(gameId, playerId, numberOfCards);
+//                if(playerId.equals("player1")){
+//                    service.removePlayerFromGame(1,"player1");
+//                }
+                Player p = service.findPlayerInGame(gameId,playerId);
+                List<Card> hand = (p == null) ? null : p.getHand();
+                System.out.printf("> %d Player %s: %d %s\n",this.getId(),playerId,dealt,hand);
             }
         }
-        List<String> players = List.of("player1","player2","player3","player4");
         players.forEach(p -> {
             new concurrentGame(p).start();
         });
         Thread.sleep(5000);
+//        List<concurrentGame> threads = new ArrayList<>();
+//        players.forEach(p -> {
+//            concurrentGame thread = new concurrentGame(p);
+//            threads.add(thread);
+//            thread.start();
+//        });
+//        while(threads.stream().filter(t -> t.isAlive()).count() != 0){
+//            Thread.sleep(1);
+//        }
+
         System.out.println(">>> UNDEALT: " + service.getUndealtCards(gameId));
 
         Map<Long, Event> events = service.getEvents();
