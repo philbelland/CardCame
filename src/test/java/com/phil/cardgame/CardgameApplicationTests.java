@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,17 +22,35 @@ public class CardgameApplicationTests {
     private GameService service;
 
     @Test
-    void testDeck() {
+    void testDeckSize() {
         Deck deck = new Deck();
         System.out.println(deck);
+        assertEquals(52,deck.getCards().size());
+    }
+
+    @Test
+    void testDeckOrder() {
+        Deck deck1 = new Deck();
+        Deck deck2 = new Deck();
+        boolean same = true;
+        for(int i = 0; i < deck1.getCards().size() && same; i++){
+            same = deck1.getCards().get(i).equals(deck2.getCards().get(i));
+            if(!same){
+                System.out.println("Diff at card " + i);
+            }
+        }
+        assertFalse(same);
     }
 
     @Test
     void testShoe() {
         Game game = new Game();
         List<Card> hand = game.useCards(5);
+        assertEquals(5, hand.size());
+        assertEquals(47, game.getGameDeck().size());
         System.out.println(">>> Hand = " + hand);
         game.addDeck(new Deck());
+        assertEquals(47 + 52, game.getGameDeck().size());
         System.out.println(">>> # cards after adding a deck = " + game.getGameDeck().size());
     }
 
@@ -40,6 +60,21 @@ public class CardgameApplicationTests {
         Player player = new Player("name@google.com");
         player.setHand(game.useCards(5));
         System.out.println(">>> " + player.getId() + " " + player.getHand());
+
+        Card card = new Card(Card.Suits.DIAMONDS,Card.Ranks.TEN);
+
+        int value1 = player.getHandValue();
+        player.addCard(card);
+        int value2 = player.getHandValue();
+        System.out.println(">>> " + player.getId() + " " + player.getHand());
+
+        assertEquals(value1 + card.getRank().getValue(), value2);
+
+        player.removeCard(card);
+        int value3 = player.getHandValue();
+        System.out.println(">>> " + player.getId() + " " + player.getHand());
+
+        assertEquals(value3, value1);
     }
 
     @Test
@@ -79,45 +114,30 @@ public class CardgameApplicationTests {
                 System.out.printf("> %d Player %s: %d %s\n",this.getId(),playerId,dealt,hand);
             }
         }
-        players.forEach(p -> {
-            new concurrentGame(p).start();
-        });
-        Thread.sleep(5000);
-//        List<concurrentGame> threads = new ArrayList<>();
 //        players.forEach(p -> {
-//            concurrentGame thread = new concurrentGame(p);
-//            threads.add(thread);
-//            thread.start();
+//            new concurrentGame(p).start();
 //        });
-//        while(threads.stream().filter(t -> t.isAlive()).count() != 0){
-//            Thread.sleep(1);
-//        }
-
-        System.out.println(">>> UNDEALT: " + service.getUndealtCards(gameId));
-
-        Map<Long, Event> events = service.getEvents();
-        for(Long i:events.keySet()){
-            System.out.println(i + ":" + events.get(i));
+//        Thread.sleep(5000);
+        List<concurrentGame> threads = new ArrayList<>();
+        players.forEach(p -> {
+            concurrentGame thread = new concurrentGame(p);
+            threads.add(thread);
+            thread.start();
+        });
+        while(threads.stream().anyMatch(Thread::isAlive)){
+            Thread.sleep(1);
         }
-    }
+        Map<String, Integer> undealtCards = service.getUndealtCards(gameId);
+        System.out.println(">>> UNDEALT: " + undealtCards);
 
-    @Test
-    void removeAll(){
-        List<Card> deck = new ArrayList<Card>();
-        deck.add(new Card(Card.Suits.CLUBS, Card.Ranks.SEVEN));
-        deck.add(new Card(Card.Suits.CLUBS, Card.Ranks.SIX));
-        deck.add(new Card(Card.Suits.CLUBS, Card.Ranks.EIGHT));
-        deck.add(new Card(Card.Suits.CLUBS, Card.Ranks.NINE));
+        int undealtCount = undealtCards.size();
+        int dealtCount = 0;
+        for(String playerId: players){
+            dealtCount += service.getPlayerCards(gameId,playerId).size();
+        }
+        assertEquals(0, undealtCount);
+        assertEquals(52, dealtCount);
 
-//		List<Card> del = new ArrayList<Card>();
-//		del.add(new Card(Card.Suits.CLUBS, Card.Ranks.EIGHT));
-//		del.add(new Card(Card.Suits.CLUBS, Card.Ranks.NINE));
-
-        List<Card> del = new ArrayList<>(deck.subList(0,2));
-
-        System.out.println(">>> DECK: " + deck.size());
-        System.out.println(">>> DEL :\n" + del);
-        deck.removeAll(del);
-        System.out.println(">>> DECK:\n" + deck);
+        service.getEvents().forEach(System.out::println);
     }
 }

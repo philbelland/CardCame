@@ -17,22 +17,6 @@ public class Game {
         gameDeck = deck.getCards();
     }
 
-    public List<Player> getPlayerList() {
-        return players.values().stream().toList();
-    }
-
-    public Player getPlayer(String email) {
-        return players.get(email);
-    }
-
-    public List<Card> getGameDeck(){
-        return gameDeck;
-    }
-
-    public synchronized void addDeck(Deck deck) {
-        gameDeck.addAll(deck.getCards());
-    }
-
     public int getRound() {
         return round;
     }
@@ -42,16 +26,26 @@ public class Game {
     }
 
     public void nextRound(){
-       round++;
+        round++;
     }
+
+    public List<Player> getPlayerList() {
+        return players.values().stream().toList();
+    }
+
+    public Player getPlayer(String email) {
+        return players.get(email);
+    }
+
+    public List<Card> getGameDeck(){ return gameDeck; }
+
+    public synchronized void addDeck(Deck deck) { gameDeck.addAll(deck.getCards()); }
 
     public synchronized void addPlayer(String email, Player player){
         players.put(email, player);
     }
 
-    public synchronized Player removePlayer(String email){
-        return players.remove(email);
-    }
+    public synchronized Player removePlayer(String email){ return players.remove(email); }
 
     public synchronized void dealToPlayer(String email, int number){
         List<Card> cards = useCards(number);
@@ -59,13 +53,6 @@ public class Game {
     }
 
     public synchronized List<Card> useCards(int number){
-        /*
-        size = 10
-        number = 11
-        ---
-        size = 52
-        number = 5
-         */
         List<Card> cards = new ArrayList<>(gameDeck.subList(0,Math.min(gameDeck.size(),number)));
         gameDeck.removeAll(cards);
         return cards;

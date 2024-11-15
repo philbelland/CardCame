@@ -13,8 +13,13 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "/games", produces = "application/json")
 public class GameController {
-    @Autowired
-    GameService service;
+//    @Autowired
+//    GameService service;
+    private GameService service;
+
+    public GameController(GameService service) {
+        this.service = service;
+    }
 
     @PostMapping(value = "/createGame")
     public ResponseEntity<Long> createGame(){
@@ -100,7 +105,7 @@ public class GameController {
         return new ResponseEntity<>(player, status);
     }
     @GetMapping(value = "/viewEvents")
-    public ResponseEntity<Map<Long, Event>> viewEvent(){
+    public ResponseEntity<List<Event>> viewEvents(){
         return new ResponseEntity<>(service.getEvents(),HttpStatus.OK);
     }
 }

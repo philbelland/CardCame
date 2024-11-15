@@ -3,6 +3,7 @@ package com.phil.cardgame.model;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class Player implements Comparable<Player> {
     private String id;
@@ -55,6 +56,22 @@ public class Player implements Comparable<Player> {
                         .comparing(Card::getSuit)
                         .thenComparing(Card::getRank))
                 .forEach(System.out::println);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Player player = (Player) o;
+        return Objects.equals(id, player.id) && Objects.equals(hand, player.hand);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(id);
+        result = 31 * result + Objects.hashCode(hand);
+        return result;
     }
 
     @Override

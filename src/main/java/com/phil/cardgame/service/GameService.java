@@ -121,7 +121,7 @@ public class GameService {
         return numberToDeal;
     }
 
-    public Map<Long, Event> getEvents() {
-        return eventRepository.getEvents();
+    public List<Event> getEvents() {
+        return eventRepository.getEvents().values().stream().toList();
     }
 }

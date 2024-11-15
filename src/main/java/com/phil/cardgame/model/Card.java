@@ -1,5 +1,7 @@
 package com.phil.cardgame.model;
 
+import java.util.Objects;
+
 public class Card implements Comparable<Card>{
 
     public enum Suits {
@@ -50,6 +52,22 @@ public class Card implements Comparable<Card>{
         } else {
             return this.suit.ordinal() - o.suit.ordinal();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Card card = (Card) o;
+        return suit == card.suit && rank == card.rank;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(suit);
+        result = 31 * result + Objects.hashCode(rank);
+        return result;
     }
 
     public Suits getSuit() {
